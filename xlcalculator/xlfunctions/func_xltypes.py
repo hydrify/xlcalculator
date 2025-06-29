@@ -17,7 +17,7 @@ def register(cls):
 
 class ExcelType:
 
-    __slots__ = ('value')
+    __slots__ = ('value',)
 
     native_types = ()
 
@@ -271,7 +271,6 @@ class Text(ExcelType):
         # Text is always greater for comparison and is not converted.
         if isinstance(other, DateTime):
             return Boolean(False)
-
         return Boolean(self.value.upper() < str(other).upper())
 
     def __le__(self, other):
@@ -280,7 +279,6 @@ class Text(ExcelType):
     def __eq__(self, other):
         if self.value in (None, '') and other in (None, ''):
             return Boolean(True)
-
         return Boolean(self.value.upper() == str(other).upper())
 
     def __ne__(self, other):
@@ -448,13 +446,22 @@ class Array(pandas.DataFrame):
         return list(filter(filt, [cast(item) for item in self.values.flat]))
 
     def cast_to_numbers(self):
-        return self.applymap(_safe_cast(Number.cast, Number(0.0)))
+        """
+        Cast all elements to Number using map (compatible with pandas ≥2.1).
+        """
+        return self.map(_safe_cast(Number.cast, Number(0.0)))
 
     def cast_to_booleans(self):
-        return self.applymap(_safe_cast(Boolean.cast, Boolean(True)))
+        """
+        Cast all elements to Boolean using map (compatible with pandas ≥2.1).
+        """
+        return self.map(_safe_cast(Boolean.cast, Boolean(True)))
 
     def cast_to_texts(self):
-        return self.applymap(_safe_cast(Text.cast, Text('')))
+        """
+        Cast all elements to Text using map (compatible with pandas ≥2.1).
+        """
+        return self.map(_safe_cast(Text.cast, Text('')))
 
 
 class Expr:
@@ -535,3 +542,4 @@ class Unused:
 
 
 UNUSED = Unused()
+
